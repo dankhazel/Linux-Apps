@@ -3,8 +3,8 @@
 import sys
 import subprocess
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu
-from PyQt5.QtGui import QIcon, QColor
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QIcon, QColor, QPixmap, QPainter, QPen
+from PyQt5.QtCore import Qt, QTimer, QRect
 
 class AudioSwitcher:
     def __init__(self):
@@ -32,13 +32,38 @@ class AudioSwitcher:
         timer.start(2000)
     
     def create_icon(self):
-        """Create a simple speaker icon"""
-        from PyQt5.QtGui import QPixmap, QPainter
-        pixmap = QPixmap(64, 64)
+        """Create a bold speaker icon"""
+        pixmap = QPixmap(128, 128)
         pixmap.fill(QColor(255, 255, 255, 0))
+        
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(20, 16, 24, 32, QColor(0, 120, 215))
+        
+        # Speaker cone (left side)
+        speaker_color = QColor(0, 120, 215)
+        painter.fillRect(QRect(25, 35, 35, 58), speaker_color)
+        
+        # Speaker cone point (triangle pointing right)
+        from PyQt5.QtGui import QPolygonF
+        from PyQt5.QtCore import QPointF
+        points = QPolygonF([
+            QPointF(60, 40),
+            QPointF(85, 25),
+            QPointF(85, 103),
+        ])
+        painter.fillPolygon(points)
+        
+        # Sound waves (bold arcs)
+        pen = QPen(speaker_color, 4)
+        pen.setCapStyle(Qt.RoundCap)
+        painter.setPen(pen)
+        
+        # Wave 1
+        painter.drawArc(QRect(80, 45, 25, 38), 0, 180 * 16)
+        
+        # Wave 2
+        painter.drawArc(QRect(95, 35, 45, 58), 0, 180 * 16)
+        
         painter.end()
         return QIcon(pixmap)
     
